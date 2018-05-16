@@ -22,7 +22,7 @@ def hook_listen():
         token = request.args.get('token')
         if token == environ.get("TOKEN"):
             post_data = request.get_json(silent=True)
-            subprocess.call("redeploy " + "{}:{}".format(post_data['repository']['repo_name'], post_data['push_data']['tag']))
+            subprocess.call("sh redeploy " + "{}:{}".format(post_data['repository']['repo_name'], post_data['push_data']['tag']))
             return jsonify(success=True), 200
         else:
             return jsonify(success=False, error="Invalid token"), 400
