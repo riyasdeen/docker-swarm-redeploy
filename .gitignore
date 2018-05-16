@@ -1,0 +1,14 @@
+
+\.vs/
+
+docker_swarm_redeploy/
+
+env/
+
+docker-swarm-redeploy\.pyproj
+
+docker-swarm-redeploy\.pyproj\.user
+
+docker-compose\.yml
+
+docker-swarm-redeploy\.sln
