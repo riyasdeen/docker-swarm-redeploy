@@ -5,4 +5,5 @@ RUN apk add --update \
 		py-pip \
 		&& pip install -r requirements.txt
 ADD runserver.py .
+ADD redeploy .
 CMD ["python", "runserver.py"]
