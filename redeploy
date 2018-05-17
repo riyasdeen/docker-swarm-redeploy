@@ -20,8 +20,10 @@ get_registry_auth(){
 login_cmd=$(get_registry_auth)
 
 registry_auth=""
+logout_cmd = ""
 if [ -n "$login_cmd" ]; then
   registry_auth="--with-registry-auth"
+  logout_cmd=" && docker logout"
 fi
 
 for service in $(IFS="\n" docker service ls --quiet); do
@@ -30,7 +32,6 @@ for service in $(IFS="\n" docker service ls --quiet); do
   image=$(echo "$image_with_digest" | cut -d@ -f1)
   if [[ " $image " = " $1 " ]]; then
     echo "Updating service $name with image $image"
-    echo $login_cmd docker service update "$name" $registry_auth --image="$image"
-    eval $login_cmd docker service update "$name" $registry_auth --image="$image" > /dev/null
+    eval $login_cmd docker service update "$name" --quiet $registry_auth --image="$image" $logout_cmd > /dev/null
   fi
 done
