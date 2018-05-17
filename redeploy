@@ -30,6 +30,7 @@ for service in $(IFS="\n" docker service ls --quiet); do
   image=$(echo "$image_with_digest" | cut -d@ -f1)
   if [[ " $image " = " $1 " ]]; then
     echo "Updating service $name with image $image"
-    $login_cmd docker service update "$service" $registry_auth --image="$image" > /dev/null
+	echo $login_cmd docker service update "$service" $registry_auth --image="$image"
+    eval $login_cmd docker service update "$service" $registry_auth --image="$image" > /dev/null
   fi
 done
