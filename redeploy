@@ -1,12 +1,35 @@
 #!/bin/bash
 set -euo pipefail
 
+get_registry_auth(){
+  local registry_auth_secret="/run/secrets/registry-auth"
+  local username=""
+  local password=""
+  local reg_auth=""
+  if [ -e $registry_auth_secret ]; then
+    username="$(jq ".username" $registry_auth_secret)"
+	password="$(jq ".password" $registry_auth_secret)"
+	if [ ! -z "$username" ] && [ ! -z "$password" ]; then
+	  reg_auth="docker login --username $username --password $password && "
+	fi
+  fi
+
+  echo "$reg_auth"
+}
+
+login_cmd=$(get_registry_auth)
+
+registry_auth=""
+if [ -n "$login_cmd" ]; then
+  registry_auth="--with-registry-auth"
+fi
+
 for service in $(IFS="\n" docker service ls --quiet); do
   name="$(docker service inspect "$service" -f '{{.Spec.Name}}')"
   image_with_digest="$(docker service inspect "$service" -f '{{.Spec.TaskTemplate.ContainerSpec.Image}}')"
   image=$(echo "$image_with_digest" | cut -d@ -f1)
   if [[ " $image " = " $1 " ]]; then
     echo "Updating service $name with image $image"
-    docker service update "$service" --with-registry-auth --image="$image" > /dev/null
+    $login_cmd docker service update "$service" $registry_auth --image="$image" > /dev/null
   fi
 done
