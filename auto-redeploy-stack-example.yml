@@ -1,0 +1,35 @@
+###################################################################
+# I use this stack file for creating auto-redeploy service.
+# My docker eco system includes, dockerflow/docker-flow-proxy, dockerflow/docker-flow-swarm-listener managed using portainer
+###################################################################
+version: '3.2'
+networks:
+    default:
+        external: false
+    proxy:
+        external: true
+secrets:
+  registry-auth:
+    external: true
+services:
+    web:
+        image: 'riyasdeen/docker-swarm-redeploy'
+        environment:
+            - SERVER_PORT=5000
+            - TOKEN=secure-token
+        secrets:
+            - 'registry-auth'
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock'
+        networks:
+            - default
+            - proxy
+        deploy:
+            placement:
+                constraints: ['node.role == manager']
+            restart_policy: {condition: any}
+            labels:
+            - com.df.notify=true
+            - com.df.servicePath=/
+            - com.df.serviceDomain=your-server-endpoint
+            - com.df.port=5000
